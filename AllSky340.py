@@ -71,7 +71,7 @@ ch.setFormatter(f)
 logging.StreamHandler.emit = emit_colored_ansi(logging.StreamHandler.emit)
 
 class AllSky340:
-    def __init__(port="/dev/tty.usbserial-A700dzlT",
+    def __init__(self, port="/dev/tty.usbserial-A700dzlT",
                     baudrate=460800, timeout=1):
         self.ser = serial.Serial()
         self.ser.port = port
@@ -79,10 +79,10 @@ class AllSky340:
         self.ser.timeout = timeout
         self.ser.open()
 
-    def get_baudrate():
+    def get_baudrate(self):
         return self.ser.baudrate
 
-    def checksum(c):
+    def checksum(self, c):
         inv = ~ord(c[0]) & 0xFF
         mask = ~(1 << 7)
         checksum = inv & mask
@@ -93,36 +93,36 @@ class AllSky340:
                 checksum = xor & mask
         return checksum
 
-    def command(cmd, nbytes):
-        to_send = cmd + struct.pack("B", self.checksum(command))
+    def command(self, cmd, nbytes):
+        to_send = cmd + struct.pack("B", self.checksum(cmd))
         self.ser.write(to_send)
         if nbytes > 0:
             return self.ser.read(nbytes)
         else:
             return True
 
-    def ping():
+    def ping(self):
         resp = self.command("E", 2)
         cam_log.info("Pinged camera and received response of %s" % resp)
         return resp[1]
 
-    def open_shutter():
+    def open_shutter(self):
         cam_log.info("Opening camera shutter")
         return self.command("O", 0)
 
-    def close_shutter():
+    def close_shutter(self):
         cam_log.info("Closing camera shutter")
         return self.command("C", 0)
 
-    def shutter_off():
+    def shutter_off(self):
         cam_log.info("De-energizing camera shutter")
         return self.command("K", 0)
 
-    def abort_image():
+    def abort_image(self):
         cam_log.info("Aborting current exposure")
         return self.command("A", 0)
 
-    def firmware():
+    def firmware(self):
         resp = self.command("V", 2)
         minor = ord(resp[1])
         major = ord(resp[0])
@@ -131,11 +131,11 @@ class AllSky340:
             major -= 8
         else:
             ver = "V"
-        version "%s%i.%i" % (ver, major, minor)
+        version = "%s%i.%i" % (ver, major, minor)
         cam_log.info("Camera firmware: %s (raw) %s (formatted)" % (resp, version))
         return version
 
-    def set_baudrate(baud):
+    def set_baudrate(self, baud):
         old_baud = self.ser.baudrate
         cam_log.info("Setting camera baudrate to %d" % baud)
         cmds = {9600:   "B0",
@@ -165,7 +165,7 @@ class AllSky340:
                 self.ser.baudrate = old_baud
                 return False
     
-    def heater_on():
+    def heater_on(self):
         """
         per communication with SBIG, the heater is wired to the X+ guide relay
         on the camera.  use the 'force guide relays' command to toggle it
@@ -175,13 +175,13 @@ class AllSky340:
         self.command(cmd, 0)
         return True
         
-    def heater_off():
+    def heater_off(self):
         cmd = 'g' + struct.pack("B", 0)
         cam_log.info("Turning camera heater off")
         self.command(cmd, 0)
         return True
 
-    def shutter_chop_on():
+    def shutter_chop_on(self):
         """
         this is an undocumented command that was provided by SBIG via
         email.  it's simply U plus 0x01 (on) or 0x00 (off).
@@ -191,13 +191,13 @@ class AllSky340:
         self.command(cmd, 0)
         return True
         
-    def shutter_chop_off():
+    def shutter_chop_off(self):
         cmd = 'U' + struct.pack("B", 0)
         cam_log.info("Disabling chopping shutter mode.")
         self.command(cmd, 0)
         return True
                 
-    def getImage(exptime, light=False, cropped=False):
+    def getImage(self, exptime, light=False, cropped=False):
         eres = 1.0e-4
         e = "%06x" % int(exp / eres)
         if light:
@@ -220,8 +220,8 @@ class AllSky340:
         else:
             imtype = "dark"
             
-        cam_log.info("Exposing %s %s image for %f seconds...." % 
-            (cropped, imtype, exptime)
+        cam_log.info("Exposing %s %s image for %f seconds...." %
+                     (cropped, imtype, exptime))
 
         out = "E"
         s = ""

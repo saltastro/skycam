@@ -1,3 +1,4 @@
 *.pyc
 *.fits
 *~
+skycam.log
