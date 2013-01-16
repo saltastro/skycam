@@ -199,7 +199,7 @@ class AllSky340:
                 
     def getImage(self, exptime, light=False, cropped=False):
         eres = 1.0e-4
-        e = "%06x" % int(exp / eres)
+        e = "%06x" % int(exptime / eres)
         if light:
             e = e + "00" + "01"
         else:
@@ -221,7 +221,7 @@ class AllSky340:
             imtype = "dark"
             
         cam_log.info("Exposing %s %s image for %f seconds...." %
-                     (cropped, imtype, exptime))
+                     (crop, imtype, exptime))
 
         out = "E"
         s = ""
@@ -254,7 +254,7 @@ class AllSky340:
             # to check returned checksum and re-try as needed. comms are
             # pretty reliable in our case, though.
             imag_str.extend(block_str)
-            to_send = 'K' + struct.pack("B", checksum('K'))
+            to_send = 'K' + struct.pack("B", self.checksum('K'))
             self.ser.write(to_send)
 
         # pull these extra bytes out.  also not sure why...

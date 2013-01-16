@@ -3,16 +3,13 @@
 import os
 import pyfits
 import matplotlib
+matplotlib.use('Agg')
 import pylab as pl
 import time
 import numpy as np
-import AllSky340
+from AllSky340 import AllSky340
 
-
-matplotlib.use('Agg')
-
-cam = AllSky340(port="/dev/tty.usbserial-A700dzlT",
-                baudrate=460800, timeout=1)
+cam = AllSky340(port="/dev/tty.usbserial-A700dzlT", baudrate=460800, timeout=1)
 
 ndark = 0
 exp = 15.0
