@@ -52,8 +52,8 @@ while True:
         ax.set_yticklabels([])
         ax.set_xticks([])
         ax.set_yticks([])
-        pl.imshow(imag, cmap=matplotlib.cm.gray,
-            norm=matplotlib.colors.LogNorm(vmin=1500, vmax=0.75 * imag.max()))
+        pl.imshow(np.flipud(imag), cmap=matplotlib.cm.gray,
+            norm=matplotlib.colors.LogNorm(vmin=1000, vmax=0.75 * imag.max()))
         pl.text(10, 5, date, color='w',
             verticalalignment='top', fontweight='bold')
         pl.text(630, 5, sast, color='w',
