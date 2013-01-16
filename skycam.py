@@ -12,7 +12,7 @@ from AllSky340 import AllSky340
 cam = AllSky340(port="/dev/tty.usbserial-A700dzlT", baudrate=460800, timeout=1)
 
 ndark = 0
-exp = 15.0
+exp = 60.0
 
 while True:
     if os.path.isfile("STOP"):
@@ -53,7 +53,7 @@ while True:
         ax.set_xticks([])
         ax.set_yticks([])
         pl.imshow(imag, cmap=matplotlib.cm.gray,
-            norm=matplotlib.colors.LogNorm(vmin=1500, vmax=25000))
+            norm=matplotlib.colors.LogNorm(vmin=1500, vmax=0.75 * imag.max()))
         pl.text(10, 5, date, color='w',
             verticalalignment='top', fontweight='bold')
         pl.text(630, 5, sast, color='w',
