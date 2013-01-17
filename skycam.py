@@ -48,11 +48,17 @@ while True:
         # set up and create the JPG file
         fig = pl.figure()
         ax = fig.add_subplot(111)
+        ax.set_axis_off()
         ax.set_xticklabels([])
         ax.set_yticklabels([])
         ax.set_xticks([])
         ax.set_yticks([])
-        pl.imshow(np.flipud(imag), cmap=matplotlib.cm.gray,
+        vmin = imag.min()
+        if vmin < 0:
+            vmin = 0
+        if vmin > 1000:
+            vmin = 1000
+        pl.imshow(np.flipud(imag), cmap=matplotlib.cm.gray, aspect='normal',
             norm=matplotlib.colors.LogNorm(vmin=1000, vmax=0.75 * imag.max()))
         pl.text(10, 5, date, color='w',
             verticalalignment='top', fontweight='bold')
