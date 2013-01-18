@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 import pylab as pl
 import time
 import numpy as np
+from scipy import stats
 from AllSky340 import AllSky340
 
 cam = AllSky340(port="/dev/tty.usbserial-A700dzlT", baudrate=460800, timeout=1)
@@ -29,6 +30,8 @@ while True:
         # get the time and set up labels and filenames
         now = time.localtime()
         imag -= dark
+        min = stats.scoreatpercentile(imag.flat, 1)
+        max = stats.scoreatpercentile(imag.flat, 99.5)
         filename = time.strftime("AllSky_%Y%m%d_%H%M%S.fits")
         jpg = time.strftime("AllSky_%Y%m%d_%H%M%S.jpg")
         date = time.strftime("%Y/%m/%d")
@@ -53,13 +56,8 @@ while True:
         ax.set_yticklabels([])
         ax.set_xticks([])
         ax.set_yticks([])
-        vmin = imag.min()
-        if vmin < 0:
-            vmin = 0
-        if vmin > 1000:
-            vmin = 1000
         pl.imshow(np.flipud(imag), cmap=matplotlib.cm.gray, aspect='normal',
-            norm=matplotlib.colors.LogNorm(vmin=1000, vmax=0.75 * imag.max()))
+            vmin=min, vmax=max)
         pl.text(10, 5, date, color='w',
             verticalalignment='top', fontweight='bold')
         pl.text(630, 5, sast, color='w',
