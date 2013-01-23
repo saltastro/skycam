@@ -81,13 +81,13 @@ class AllSky340:
         self.ser.open()
         cam_log.info("Camera opened on port %s." % port)
 
-    def log_info(msg):
+    def log_info(self, msg):
         cam_log.info(msg)
 
-    def log_warn(msg):
+    def log_warn(self, msg):
         cam_log.warn(msg)
 
-    def log_err(msg):
+    def log_err(self, msg):
         cam_log.error(msg)
 
     def get_baudrate(self):
