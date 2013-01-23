@@ -11,12 +11,14 @@ from scipy import stats
 from AllSky340 import AllSky340
 
 cam = AllSky340(port="/dev/tty.usbserial-A700dzlT", baudrate=460800, timeout=1)
+cam.log_info("Image acquisition script starting up.")
 
 ndark = 0
 exp = 60.0
 
 while True:
     if os.path.isfile("STOP"):
+        cam.log_info("Image acquisition script shutting down.")
         os.system("rm STOP")
         break
 
@@ -71,7 +73,7 @@ while True:
         os.system("ln -sf %s AllSkyCurrentImage.fits" % filename)
 
     except Exception, err:
-        print "Oops! Something went wrong...%s" % err
+        cam.log_err("Oops! Something went wrong...%s" % err)
 
     ndark += 1
 
