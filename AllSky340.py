@@ -217,7 +217,11 @@ class AllSky340:
         """
         max_tries = 5
         block = self.ser.read(npix * 2)
-        cam_lrc = ord(self.ser.read(1))
+        lrc_byte = self.ser.read(1)
+        if len(lrc_byte) > 0:
+            cam_lrc = ord(lrc_byte)
+        else:
+            cam_lrc = 0
         lrc = 0
         for b in block:
             lrc ^= ord(b)
@@ -229,6 +233,8 @@ class AllSky340:
                 Re-transmitting block (try #%d)..."
                              % ntries)
                 self.command('R', 0)
+                # not sure why this is needed. not mentioned in document...
+                f = self.ser.read(1)
                 return self.block_read(npix, ntries=ntries+1)
             else:
                 cam_log.error("Camera read_out failed. Stopping transfer.")
