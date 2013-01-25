@@ -117,9 +117,10 @@ class AllSky340:
         cam_log.info("Pinged camera and received response of %s" % resp)
         if resp[1] == "O":
             cam_log.info("Camera on-line and communicating properly.")
+            return True
         else:
             cam_log.warn("Comm problem. Did not receive correct response from camera.")
-        return resp[1]
+            return False
 
     def open_shutter(self):
         cam_log.info("Opening camera shutter")
