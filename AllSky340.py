@@ -173,8 +173,7 @@ class AllSky340:
                 self.command("k", 0)
                 return True
             else:
-                cam_log.warn("Camera did not accept new baudrate. \
-                Resetting to previous rate.")
+                cam_log.warn("Camera did not accept new baudrate. Resetting to previous rate.")
                 self.ser.baudrate = old_baud
                 return False
 
@@ -229,8 +228,7 @@ class AllSky340:
             return block
         else:
             if ntries < max_tries:
-                cam_log.warn("Camera read-out error. \
-                Re-transmitting block (try #%d)..."
+                cam_log.warn("Camera read-out error. Re-transmitting block (try #%d)..."
                              % ntries)
                 self.command('R', 0)
                 # not sure why this is needed. not mentioned in document...
