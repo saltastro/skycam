@@ -1,132 +1,28 @@
 #!/usr/bin/env python
 
-import sys
-import os
-import serial
-import struct
+import time
 import pyfits
-import numpy as np
+from AllSky340 import AllSky340
 
-def checksum(c):
-    inv = ~ord(c[0]) & 0xFF
-    mask = ~(1 << 7)
-    checksum = inv & mask
-    if len(c) > 1:
-        for i in range(1,len(c)):
-            inv = ~ord(c[i]) & 0xFF
-            xor = checksum ^ inv
-            checksum = xor & mask
+cam = AllSky340(port="/dev/tty.usbserial-A700dzlT", baudrate=460800, timeout=1)
+cam.log_info("Testing camera communication.")
 
-    return checksum
+p = cam.ping()
+if p:
+    exp = 0.1
+    cam.log_info("Taking %f sec test image." % exp)
+    imag = cam.getImage(exp, light=True)
+    now = time.localtime()
+    date = time.strftime("%Y/%m/%d")
+    sast = time.strftime("%H:%M:%S")
 
-ser = serial.Serial()
-ser.port = "/dev/tty.usbserial-A700dzlT"
-ser.baudrate = 460800
-ser.timeout = 1
-ser.open()
-
-print "reported baudrate is %d" % ser.baudrate
-
-command = "S"
-to_send = command + struct.pack("B", checksum(command))
-#ser.write(to_send)
-
-command = "A"
-to_send = command + struct.pack("B", checksum(command))
-#ser.write(to_send)
-
-eres = 1.0e-4
-exp = int(1.0/eres)
-
-print "exp time 0x%06x" % exp
-
-e = "%06x" % exp
-
-e = e + "00" + "00"
-#e = "00" + "00" + e
-
-etime = e.decode("hex")
-
-command = "T" + etime
-
-print "checksum: %s" % checksum(command)
-
-to_send = command + struct.pack("B", checksum(command))
-
-print "sending:"
-
-for c in to_send:
-    print c, c.encode("hex")
-
-print ""
-
-ser.write(to_send)
-
-out = "E"
-
-while out != "D":
-    out = ser.read(1)
-    print "got %s" % out
-
-
-print "Getting image...."
-to_send = 'X' + struct.pack("B", checksum('X'))
-ser.write(to_send)
-
-imag_str = bytearray()
-
-f = ser.read(1)
-
-print "Get this at the start: %s" % f
-
-for i in range(307200/4096):
-    npix = 4096
-    print "Reading block %d...." % i
-    block_str = ser.read(npix*2)
-    cam = ser.read(1)
-    print "Camera checksum is 0x%02x" % ord(cam)
-    lrc = 0
-    for b in block_str:
-       lrc ^= ord(b)
-    print "Computed checksum is 0x%02x" % lrc
-#     if lrc != ord(cam):
-#         print "Whoops! try again."
-#         to_send = 'R' + struct.pack("B", checksum('K'))
-#         ser.write(to_send)
-#         block_str = ser.read(npix*2)
-#         cam = ser.read(1)
-#         print "New camera checksum is 0x%02x" % ord(cam)
-#         lrc = 0
-#         for b in block_str:
-#             lrc ^= ord(b)
-#         print "New computed checksum is 0x%02x" % lrc
-    imag_str.extend(block_str)
-    to_send = 'K' + struct.pack("B", checksum('K'))
-    ser.write(to_send)
-
-print "at end..."
-cam = ser.read(1)
-print "Camera checksum is 0x%02x" % ord(cam)
-cam = ser.read(1)
-print "Camera checksum is 0x%02x" % ord(cam)
-cam = ser.read(1)
-print "Camera checksum is 0x%02x" % ord(cam)
-cam = ser.read(1)
-print "Camera checksum is 0x%02x" % ord(cam)
-cam = ser.read(1)
-print "Camera checksum is 0x%02x" % ord(cam)
-
-earr = [z for z in imag_str[::2]]
-oarr = [z for z in imag_str[1::2]]
-
-arr = []
-
-for i in range(len(earr)):
-    s = struct.pack("BB", earr[i], oarr[i])
-    n = struct.unpack("H", s)[0]
-    arr.append(n)
-
-imag = np.array(arr, dtype=np.uint16).reshape(480,640)
-
-pyfits.writeto("test.fits", imag, clobber=True)
+    # set up and create the FITS file
+    cards = []
+    cards.append(pyfits.createCard("DATEOBS", date, "Date of observation"))
+    cards.append(pyfits.createCard("TIMEOBS",
+                                   sast,
+                                   "Time of observation (SAST)"))
+    cards.append(pyfits.createCard("EXPTIME", exp, "Exposure time (s)"))
+    header = pyfits.Header(cards=cards)
+    pyfits.writeto("test.fits", imag, header=header, clobber=True)
 
