@@ -72,7 +72,7 @@ logging.StreamHandler.emit = emit_colored_ansi(logging.StreamHandler.emit)
 
 
 class AllSky340:
-    def __init__(self, port="/dev/tty.usbserial-A700dzlT",
+    def __init__(self, port="/dev/tty.usbserial",
                  baudrate=460800, timeout=1):
         self.ser = serial.Serial()
         self.ser.port = port
