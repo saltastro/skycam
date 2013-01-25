@@ -115,6 +115,10 @@ class AllSky340:
     def ping(self):
         resp = self.command("E", 2)
         cam_log.info("Pinged camera and received response of %s" % resp)
+        if resp[1] == "O":
+            cam_log.info("Camera on-line and communicating properly.")
+        else:
+            cam_log.warn("Comm problem. Did not receive correct response from camera.")
         return resp[1]
 
     def open_shutter(self):
@@ -319,4 +323,6 @@ class AllSky340:
 
 if __name__ == '__main__':
     cam = AllSky340()
-    print cam.firmware()
+    method = sys.argv[1].lower()
+    args = ", ".join(sys.argv[2:])
+    eval("c.%s(%s)" % (method, args))
