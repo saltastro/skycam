@@ -322,7 +322,7 @@ class AllSky340:
         return np.flipud(imag)
 
 if __name__ == '__main__':
-    cam = AllSky340()
+    c = AllSky340()
     method = sys.argv[1].lower()
     args = ", ".join(sys.argv[2:])
     eval("c.%s(%s)" % (method, args))
