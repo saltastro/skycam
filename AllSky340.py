@@ -61,7 +61,7 @@ def emit_colored_ansi(fn):
 # Initialize logger
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 cam_log = logging.getLogger()
-fh = logging.FileHandler("os.environ['HOME']/skycam.log")
+fh = logging.FileHandler("%s/skycam.log" % os.environ['HOME'])
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(logging.Formatter("%(asctime)s: %(levelname)s - %(message)s"))
 cam_log.addHandler(fh)
