@@ -1,4 +1,4 @@
 #!/bin/sh
 
 cd /Library/WebServer/Documents/skycam/Data
-/Users/timdimm/skycam/skycam.py > skycam.log 2>1&
+/Users/timdimm/skycam/skycam.py >> skycam.log 2>&1
