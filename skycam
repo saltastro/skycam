@@ -1,4 +1,5 @@
 #!/bin/sh
 
+pkill -f -s 9 skycam.py
 cd /Library/WebServer/Documents/skycam/Data
 /Users/timdimm/skycam/skycam.py >> skycam.log 2>&1 &
