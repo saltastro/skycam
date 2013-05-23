@@ -237,7 +237,7 @@ class AllSky340:
                              % ntries)
                 self.command('R', 0)
                 # not sure why this is needed. not mentioned in document...
-                f = self.ser.read(1)
+                # f = self.ser.read(1)
                 return self.block_read(npix, ntries=ntries+1)
             else:
                 cam_log.error("Camera read_out failed. Stopping transfer.")
