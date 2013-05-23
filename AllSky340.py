@@ -33,7 +33,7 @@ import sys
 import os
 import serial
 import struct
-import pyfits
+from astropy.io import fits as pyfits
 import time
 import numpy as np
 import logging

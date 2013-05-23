@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-import pyfits
+from astropy.io import fits as pyfits
 import matplotlib
 matplotlib.use('Agg')
 import pylab as pl
