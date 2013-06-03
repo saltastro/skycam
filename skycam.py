@@ -10,7 +10,9 @@ import numpy as np
 from scipy import stats
 from AllSky340 import AllSky340
 
-cam = AllSky340(port="/dev/tty.usbserial-A700dzlT", baudrate=460800, timeout=1)
+cam = AllSky340(port="/dev/ttyUSB0",
+                baudrate=460800,
+                timeout=0.1)
 cam.log_info("Image acquisition script starting up.")
 
 ndark = 0

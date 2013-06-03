@@ -73,13 +73,15 @@ logging.StreamHandler.emit = emit_colored_ansi(logging.StreamHandler.emit)
 
 class AllSky340:
     def __init__(self, port="/dev/tty.usbserial",
-                 baudrate=460800, timeout=1):
+                 baudrate=460800, timeout=0.5):
         self.ser = serial.Serial()
         self.ser.port = port
         self.ser.baudrate = baudrate
         self.ser.timeout = timeout
         self.ser.open()
         cam_log.info("Camera opened on port %s." % port)
+        self.ping()
+        self.ping()
 
     def log_info(self, msg):
         cam_log.info(msg)
@@ -214,14 +216,15 @@ class AllSky340:
         self.command(cmd, 0)
         return True
 
-    def block_read(self, npix, ntries=0):
+    def block_read(self, npix, ntries=0, lrc_byte=None):
         """
         cheeky recursive function to read block of pixels and ask for repeat
         transmissions if checksums don't match
         """
         max_tries = 5
         block = self.ser.read(npix * 2)
-        lrc_byte = self.ser.read(1)
+        if lrc_byte == None:
+            lrc_byte = self.ser.read(1)
         if len(lrc_byte) > 0:
             cam_lrc = ord(lrc_byte)
         else:
@@ -238,10 +241,10 @@ class AllSky340:
                 self.command('R', 0)
                 # not sure why this is needed. not mentioned in document...
                 # f = self.ser.read(1)
-                return self.block_read(npix, ntries=ntries+1)
+                return self.block_read(npix, ntries=ntries+1, lrc_byte=lrc_byte)
             else:
                 cam_log.error("Camera read_out failed. Stopping transfer.")
-                self.command('S', 0)
+                #self.command('S', 0)
                 return False
 
     def getImage(self, exptime, light=False, cropped=False):
