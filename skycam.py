@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import os
+import datetime as dt
+import time
+
 from astropy.io import fits as pyfits
 import matplotlib
 matplotlib.use('Agg')
 import pylab as pl
-import time
 import numpy as np
 from scipy import stats
 from AllSky340 import AllSky340
@@ -17,6 +19,18 @@ cam.log_info("Image acquisition script starting up.")
 
 ndark = 0
 exp = 60.0
+
+os.chdir("/var/www/skycam/")
+
+def get_obsdir():
+   """return the obsdate directory"""
+   now = dt.datetime.now() - dt.timedelta(days=0.5)
+   year = now.strftime('%Y/')
+   obsdir=now.strftime('%Y/%m%d/')
+   if not os.path.isdir(year): os.mkdir(year)
+   if not os.path.isdir(obsdir): os.mkdir(obsdir)
+   return obsdir
+    
 
 while True:
     if os.path.isfile("STOP"):
@@ -32,12 +46,13 @@ while True:
         imag = cam.getImage(exp, light=True)
 
         # get the time and set up labels and filenames
+        obsdir = get_obsdir()
         now = time.localtime()
         imag -= dark
         min = stats.scoreatpercentile(imag.flat, 1)
         max = stats.scoreatpercentile(imag.flat, 99.5)
-        filename = time.strftime("AllSky_%Y%m%d_%H%M%S.fits")
-        jpg = time.strftime("AllSky_%Y%m%d_%H%M%S.jpg")
+        filename = obsdir+time.strftime("AllSky_%Y%m%d_%H%M%S.fits")
+        jpg = obsdir+time.strftime("AllSky_%Y%m%d_%H%M%S.jpg")
         date = time.strftime("%Y/%m/%d")
         sast = time.strftime("%H:%M:%S")
         elabel = "Exposure: %f sec" % exp
@@ -71,11 +86,11 @@ while True:
         pl.savefig(jpg, bbox_inches="tight", pad_inches=0.0, quality=95)
         pl.close()
 
-        os.system("ln -sf %s AllSkyCurrentImage.JPG" % jpg)
-        os.system("ln -sf %s AllSkyCurrentImage.fits" % filename)
+        os.system("ln -sf /var/www/skycam/%s Data/AllSkyCurrentImage.JPG" % jpg)
+        os.system("ln -sf /var/www/skycam/%s Data/AllSkyCurrentImage.fits" % filename)
 
     except Exception, err:
-        cam.log_err("Oops! Something went wrong...%s" % err)
+        cam.log_err("Oops! Something went wrong...%s" % err) 
 
     ndark += 1
 
