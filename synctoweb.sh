@@ -1,0 +1,1 @@
+x=1; for i in `find /Library/WebServer/Documents/skycam/Data -iname "*.jpg" -mmin -4`; do counter=$(printf %03d $x) ; rsync --timeout=30 -e ssh -avP "$i" root@web.saao.ac.za:/home/webcams/skycam/archive/ ; done
